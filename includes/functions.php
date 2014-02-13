@@ -197,3 +197,26 @@ function edd_cardsave_gateway_convert_currency( $currency ) {
 
 	return $code;
 }
+
+
+/**
+ * Create purchase summary
+ *
+ * @since		1.0.0
+ * @param		array $purchase_data
+ * @return		string $summary
+ */
+function edd_cardsave_gateway_build_summary( $purchase_data ) {
+
+	$cart_items = isset( $purchase_data['cart_details'] ) ? maybe_unserialize( $purchase_data['cart_details'] ) : false;
+	$summary = '';
+
+	if( $cart_items ) {
+		foreach( $cart_items as $key => $cart_item ) {
+			$id = $cart_item['id'];
+			$summary .= get_the_title( $id ) . ', ';
+		}
+	}
+
+	return $summary;
+}

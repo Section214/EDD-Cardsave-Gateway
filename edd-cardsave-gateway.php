@@ -82,11 +82,6 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
          * @return      void
          */
 		private function includes() {
-			// Load our custom updater
-			if( !class_exists( 'EDD_LICENSE' ) ) {
-				include( EDD_CARDSAVE_GATEWAY_DIR . '/includes/libraries/EDD_SL/EDD_License_Handler.php' );
-			}
-
 			// Include helper functions
 			require_once( EDD_CARDSAVE_GATEWAY_DIR . '/includes/functions.php' );
         }
@@ -104,7 +99,9 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 			add_filter( 'plugin_row_meta', array( $this, 'plugin_metalinks' ), null, 2 );
 
 			// Handle licensing
-			$license = new EDD_License( __FILE__, 'Cardsave Gateway', EDD_CARDSAVE_GATEWAY_VERSION, 'Daniel J Griffiths' );
+			if( class_exists( 'EDD_License' ) ) {
+				$license = new EDD_License( __FILE__, 'Cardsave Gateway', EDD_CARDSAVE_GATEWAY_VERSION, 'Daniel J Griffiths' );
+			}
 
 			// Register settings
 			add_filter( 'edd_settings_gateways', array( $this, 'settings' ), 1 );
@@ -238,12 +235,9 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 		 * @since		1.0.0
 		 * @access		public
 		 * @param		array $purchase_data The data for a specific purchase
-		 * @global		array $edd_options The EDD options array
 		 * @return		void
 		 */
 		public function process_payment( $purchase_data ) {
-			global $edd_options;
-
 			$errors = edd_get_errors();
 
 			if( !$errors ) {
@@ -265,11 +259,11 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 <soap:Body>
 <CardDetailsTransaction xmlns="https://www.thepaymentgateway.net/">
 <PaymentMessage>
-<MerchantAuthentication MerchantID="' . $edd_options['edd_cardsave_gateway_merchant_id'] . '" Password="' . $edd_options['edd_cardsave_gateway_password'] . '" />
-<TransactionDetails Amount="' . $amount . '" CurrencyCode="' . edd_cardsave_gateway_convert_currency( $edd_options['currency'] ) . '">
+<MerchantAuthentication MerchantID="' . edd_get_option( 'edd_cardsave_gateway_merchant_id', '' ) . '" Password="' . edd_get_option( 'edd_cardsave_gateway_password', '' ) . '" />
+<TransactionDetails Amount="' . $amount . '" CurrencyCode="' . edd_cardsave_gateway_convert_currency( edd_get_currency() ) . '">
 <MessageDetails TransactionType="SALE" />
 <OrderID>' . $purchase_data['purchase_key'] . '</OrderID>
-<OrderDescription>' . $purchase_data['purchase_key'] . '</OrderDescription>
+<OrderDescription>' . edd_cardsave_gateway_clean( edd_cardsave_gateway_build_summary( $purchase_data ), 50 ) . '</OrderDescription>
 <TransactionControl>
 <EchoCardType>TRUE</EchoCardType>
 <EchoAVSCheckResult>TRUE</EchoAVSCheckResult>
@@ -301,7 +295,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 </BillingAddress>
 <EmailAddress>' . edd_cardsave_gateway_clean( $purchase_data['user_email'], 100 ) . '</EmailAddress>
 <PhoneNumber></PhoneNumber>
-<CustomerIPAddress>' . $_SERVER['REMOTE_ADDR'] . '</CustomerIPAddress>
+<CustomerIPAddress>' . edd_get_ip() . '</CustomerIPAddress>
 </CustomerDetails>
 </PaymentMessage>
 </CardDetailsTransaction>
@@ -358,7 +352,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 											'date'			=> $purchase_data['date'],
 											'user_email'	=> $purchase_data['user_email'],
 											'purchase_key'	=> $purchase_data['purchase_key'],
-											'currency'		=> $edd_options['currency'],
+											'currency'		=> edd_get_currency(),
 											'downloads'		=> $purchase_data['downloads'],
 											'cart_details'	=> $purchase_data['cart_details'],
 											'user_info'		=> $purchase_data['user_info'],
@@ -422,7 +416,7 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 												'date'			=> $purchase_data['date'],
 												'user_email'	=> $purchase_data['user_email'],
 												'purchase_key'	=> $purchase_data['purchase_key'],
-												'currency'		=> $edd_options['currency'],
+												'currency'		=> edd_get_currency(),
 												'downloads'		=> $purchase_data['downloads'],
 												'cart_details'	=> $purchase_data['cart_details'],
 												'user_info'		=> $purchase_data['user_info'],
