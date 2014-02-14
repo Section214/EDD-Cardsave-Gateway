@@ -162,11 +162,11 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
         public function plugin_metalinks( $links, $file ) {
             if( $file == plugin_basename( __FILE__ ) ) {
                 $help_link = array(
-                    '<a href="http://support.ghost1227.com/forums/forum/plugin-support/edd-cardsave-gateway/" target="_blank">' . __( 'Support Forum', 'edd-cardsave-gateway' ) . '</a>'
+                    '<a href="https://easydigitaldownloads.com/support/forum/add-on-plugins/cardsave-gateway" target="_blank">' . __( 'Support Forum', 'edd-cardsave-gateway' ) . '</a>'
                 );
 
                 $docs_link = array(
-                    '<a href="http://support.ghost1227.com/section/edd-cardsave-gateway/" target="_blank">' . __( 'Docs', 'edd-cardsave-gateway' ) . '</a>'
+                    '<a href="http://section214.com/docs/category/edd-cardsave-gateway/" target="_blank">' . __( 'Docs', 'edd-cardsave-gateway' ) . '</a>'
                 );
 
                 $links = array_merge( $links, $help_link, $docs_link );
