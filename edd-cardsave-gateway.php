@@ -252,6 +252,30 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 
                     $amount = edd_sanitize_amount( number_format( $purchase_data['price'] * 100, 0 ) );
 
+                    if( !$purchase_data['card_info']['card_name'] ) {
+                        edd_set_error( 'authorize_error', __( 'Error: Card name is required. Please try again.', 'edd-cardsave-gateway' ) );
+                        $err = true;
+                    }
+
+                    if( !$purchase_data['card_info']['card_number'] ) {
+                        edd_set_error( 'authorize_error', __( 'Error: Card number is required. Please try again.', 'edd-cardsave-gateway' ) );
+                        $err = true;
+                    }
+
+                    if( !$purchase_data['card_info']['card_exp_month'] || !$purchase_data['card_info']['card_exp_year'] ) {
+                        edd_set_error( 'authorize_error', __( 'Error: Card expiration is required. Please try again.', 'edd-cardsave-gateway' ) );
+                        $err = true;
+                    }
+
+                    if( !$purchase_data['card_info']['card_cvc'] ) {
+                        edd_set_error( 'authorize_error', __( 'Error: Card CVC is required. Please try again.', 'edd-cardsave-gateway' ) );
+                        $err = true;
+                    }
+
+                    if( $err ) {
+                        edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
+                    }
+
                     $xml = '<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
