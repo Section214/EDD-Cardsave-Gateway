@@ -252,6 +252,8 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 
                     $amount = edd_sanitize_amount( number_format( $purchase_data['price'] * 100, 0 ) );
 
+                    $err = false;
+
                     if( !$purchase_data['card_info']['card_name'] ) {
                         edd_set_error( 'authorize_error', __( 'Error: Card name is required. Please try again.', 'edd-cardsave-gateway' ) );
                         $err = true;
@@ -392,6 +394,8 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                                             edd_update_payment_status( $payment, 'publish' );
                                             edd_send_to_success_page();
                                         } else {
+                                            $response .= __( 'Payment could not be recorded.', 'edd-cardsave-gateway' );
+
                                             edd_set_error( 'authorize_error', __( 'Error: Your payment could not be recorded. Please try again.', 'edd-cardsave-gateway' ) );
                                             edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
                                         }
