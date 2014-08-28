@@ -3,7 +3,7 @@
  * Plugin Name:     Easy Digital Downloads - Cardsave Gateway
  * Plugin URI:      https://easydigitaldownloads.com/extensions/cardsave-gateway
  * Description:     Adds a payment gateway for Cardsave to Easy Digital Downloads
- * Version:         1.0.0
+ * Version:         1.0.1
  * Author:          Daniel J Griffiths
  * Author URI:      http://section214.com
  * Text Domain:     edd-cardsave-gateway
@@ -64,7 +64,7 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
          */
         private function setup_constants() {
             // Plugin version
-            define( 'EDD_CARDSAVE_GATEWAY_VERSION', '1.0.0' );
+            define( 'EDD_CARDSAVE_GATEWAY_VERSION', '1.0.1' );
 
             // Plugin path
             define( 'EDD_CARDSAVE_GATEWAY_DIR', plugin_dir_path( __FILE__ ) );
@@ -250,7 +250,7 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
                         'Connection: close'
                     );
 
-                    $amount = edd_sanitize_amount( number_format( $purchase_data['price'] * 100, 0 ) );
+                    $amount = number_format( $purchase_data['price'] * 100, 0 );
 
                     $err = false;
 
