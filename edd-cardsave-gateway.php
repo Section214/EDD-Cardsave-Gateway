@@ -38,13 +38,13 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 		private static $instance;
 
 
-        /**
-         * Get active instance
-         *
-         * @access      public
-         * @since       1.0.0
-         * @return      self::$instance The one true EDD_Cardsave_Gateway
-         */
+	/**
+	 * Get active instance
+	 *
+	 * @access      public
+	 * @since       1.0.0
+	 * @return      self::$instance The one true EDD_Cardsave_Gateway
+	 */
 		public static function instance() {
 			if( ! self::$instance ) {
 				self::$instance = new EDD_Cardsave_Gateway();
