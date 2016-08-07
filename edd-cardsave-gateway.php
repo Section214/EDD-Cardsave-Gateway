@@ -3,7 +3,7 @@
  * Plugin Name:     Easy Digital Downloads - Cardsave Gateway
  * Plugin URI:      https://wordpress.org/plugins/edd-cardsave-gateway
  * Description:     Adds a payment gateway for Cardsave to Easy Digital Downloads
- * Version:         1.0.2
+ * Version:         1.0.3
  * Author:          Daniel J Griffiths
  * Author URI:      http://section214.com
  * Text Domain:     edd-cardsave-gateway
@@ -38,19 +38,32 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 		private static $instance;
 
 
-        /**
-         * Get active instance
-         *
-         * @access      public
-         * @since       1.0.0
-         * @return      self::$instance The one true EDD_Cardsave_Gateway
-         */
+		/**
+		 * @var         bool $debugging Whether or not debugging is available
+		 * @since       1.0.3
+		 */
+		public $debugging = false;
+
+
+		/**
+		 * Get active instance
+		 *
+		 * @access      public
+		 * @since       1.0.0
+		 * @return      self::$instance The one true EDD_Cardsave_Gateway
+		 */
 		public static function instance() {
 			if( ! self::$instance ) {
 				self::$instance = new EDD_Cardsave_Gateway();
 				self::$instance->setup_constants();
 				self::$instance->includes();
 				self::$instance->load_textdomain();
+
+				if( class_exists( 'S214_Debug' ) ) {
+					if( edd_get_option( 'edd_getresponse_enable_debug', false ) ) {
+						self::$instance->debugging = true;
+					}
+				}
 			}
 
 			return self::$instance;
@@ -66,7 +79,7 @@ if( !class_exists( 'EDD_Cardsave_Gateway' ) ) {
 		 */
 		private function setup_constants() {
 			// Plugin version
-			define( 'EDD_CARDSAVE_GATEWAY_VERSION', '1.0.2' );
+			define( 'EDD_CARDSAVE_GATEWAY_VERSION', '1.0.3' );
 
 			// Plugin path
 			define( 'EDD_CARDSAVE_GATEWAY_DIR', plugin_dir_path( __FILE__ ) );

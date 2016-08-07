@@ -38,7 +38,7 @@ add_filter( 'edd_settings_sections_gateways', 'edd_cardsave_gateway_add_settings
  */
 function edd_cardsave_gateway_register_settings( $settings ) {
 	$new_settings = array(
-		'cardsave' => array(
+		'cardsave' => apply_filters( 'edd_cardsave_gateway_settings', array(
 			array(
 				'id'   => 'edd_cardsave_gateway_settings',
 				'name' => '<strong>' . __( 'Cardsave Settings', 'edd-cardsave-gateway' ) . '</strong>',
@@ -57,12 +57,43 @@ function edd_cardsave_gateway_register_settings( $settings ) {
 				'desc' => __( 'Enter your Cardsave Gateway Password (found under <a href="https://mms.cardsaveonlinepayments.com/Default.aspx" target="_blank">Gateway Account Admin</a>)', 'edd-cardsave-gateway' ),
 				'type' => 'text'
 			)
-		)
+		) )
 	);
 
 	return array_merge( $settings, $new_settings );
 }
 add_filter( 'edd_settings_gateways', 'edd_cardsave_gateway_register_settings', 1 );
+
+
+/**
+ * Add debug option if the S214 Debug plugin is enabled
+ *
+ * @since       1.0.3
+ * @param       array $settings The current settings
+ * @return      array $settings The updated settings
+ */
+function edd_cardsave_gateway_add_debug( $settings ) {
+	if( class_exists( 'S214_Debug' ) ) {
+		$debug_setting[] = array(
+			'id'   => 'edd_cardsave_gateway_debugging',
+			'name' => '<strong>' . __( 'Debugging', 'edd-cardsave-gateway' ) . '</strong>',
+			'desc' => '',
+			'type' => 'header'
+		);
+
+		$debug_setting[] = array(
+			'id'   => 'edd_cardsave_gateway_enable_debug',
+			'name' => __( 'Enable Debug', 'edd-cardsave-gateway' ),
+			'desc' => sprintf( __( 'Log plugin errors. You can view errors %s.', 'edd-cardsave-gateway' ), '<a href="' . admin_url( 'tools.php?page=s214-debug-logs' ) . '">' . __( 'here', 'edd-cardsave-gateway' ) . '</a>' ),
+			'type' => 'checkbox'
+		);
+
+		$settings = array_merge( $settings, $debug_setting );
+	}
+
+	return $settings;
+}
+add_filter( 'edd_cardsave_gateway_settings', 'edd_cardsave_gateway_add_debug' );
 
 
 /**
@@ -340,12 +371,22 @@ xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 
 				if( ! $success ) {
 					edd_record_gateway_error( __( 'Cardsave Gateway Error', 'edd-cardsave-gateway' ), $response, 0 );
+
+					if( edd_getresponse()->debugging ) {
+						s214_debug_log_error( 'Gateway Error', $response, 'EDD Cardsave Gateway' );
+					}
+
 					edd_set_error( 'card_declined', __( 'Your card was declined!', 'edd-cardsave-gateway' ) );
 					edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
 				}
 			}
 		} catch( Exception $e ) {
 			edd_record_gateway_error( __( 'Cardsave Gateway Error', 'edd-cardsave-gateway' ), print_r( $e, true ), 0 );
+
+			if( edd_getresponse()->debugging ) {
+				s214_debug_log_error( 'Gateway Error', print_r( $e, true ), 'EDD Cardsave Gateway' );
+			}
+
 			edd_set_error( 'card_declined', __( 'Your card was declined!', 'edd-cardsave-gateway' ) );
 			edd_send_back_to_checkout( '?payment-mode=' . $purchase_data['post_data']['edd-gateway'] );
 		}
